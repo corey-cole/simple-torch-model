@@ -1,0 +1,47 @@
+[project]
+name = "simple-model"
+version = "0.1.0"
+description = "Simple Pytorch model"
+readme = "README.md"
+authors = [
+    { name = "Corey Cole", email = "3700879+corey-cole@users.noreply.github.com" }
+]
+requires-python = ">=3.12"
+
+# executorch 1.0.0 appears to require Python 3.13
+# Stick to pre-release for now
+dependencies = [
+    "click",
+    "numpy",
+    "onnxscript",
+    "executorch==0.7.0",
+    "torch==2.8.0+cpu", # executorch
+]
+
+[project.scripts]
+model-export = "simple_model.cli.export:main"
+model-execute = "simple_model.cli.execute:main"
+
+[tool.uv.sources]
+torch = [
+  { index = "pytorch-cpu" },
+]
+torchvision = [
+  { index = "pytorch-cpu" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[build-system]
+requires = ["uv_build>=0.9.7,<0.10.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.2",
+    "pytest-cov>=7.0.0",
+    "ruff>=0.14.3",
+]
