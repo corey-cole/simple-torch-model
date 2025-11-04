@@ -9,7 +9,7 @@ pipeline for applications that use a JVM to perform the inference.
 ## Current State
 
 Exports for the TorchScript, `torch.export`, ONNX, and executorch for XNNPACK appear to work.
-XNNPack model inference has been tested, with the remaining formats still a WIP.
+Inference on loaded model has been tested for every API except TorchScript.
 
 Also, torch==2.9.0 adds the new `torch.export.draft_export` API which might be a useful option to include
 behind a command line switch.  This project is hard-coded to use torch 2.8.0 and executorch 0.7.0.  Forwards and backwards compatibility requires additional testing.
