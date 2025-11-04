@@ -6,6 +6,7 @@ import torch
 from executorch.runtime import Runtime
 
 from simple_model.cli.common import ExportFormat
+from simple_model.runner import ModelRunner
 
 
 @click.command(context_settings={"show_default": True})
@@ -24,16 +25,14 @@ from simple_model.cli.common import ExportFormat
 def main(format: ExportFormat, input_path: str) -> None:
     print(f"Loading model from {input_path} in {format.value} format.")
 
+    runner = ModelRunner()
     match format:
-        # TODO: Move this out of the CLI module
         case ExportFormat.XNNPACK:
-            runtime = Runtime.get()
-            input_tensor = torch.randn(1, 10)
-            program = runtime.load_program(input_path)
-            method = program.load_method("forward")
-            if method is None:
-                raise RuntimeError("Failed to load 'forward' method from program.")
-            output = method.execute([input_tensor])
-            print(f"Model output: {output}")
+            runner.run_xnnpack_model(input_path)
+        case ExportFormat.ONNX:
+            runner.run_onnx_model(input_path)
+        case ExportFormat.TORCH_EXPORT:
+            runner.run_torch_export_model(input_path)
         case _:
             raise ValueError(f"Unsupported export format: {format}")
+
