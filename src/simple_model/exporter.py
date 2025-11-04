@@ -1,7 +1,9 @@
 # This class is the interface between the CLI and the different Torch export APIs
 from __future__ import annotations
+from pprint import pprint
 import torch
 import torch.nn as nn
+import torch.onnx.verification
 
 from executorch.backends.xnnpack.partition.xnnpack_partitioner import XnnpackPartitioner
 from executorch.exir import to_edge_transform_and_lower
@@ -30,14 +32,27 @@ class ModelExporter:
 
     def export_onnx(self, file_path: str) -> None:
         # ONNX export uses torch.export internally
-        # TODO: Can save the result of this and call .optimize() to remove the model local functions
-        torch.onnx.export(
+        # API docs recommend using f=None (the default, but setting explicitly here for clarity)
+        # and then calling save(...) on the resulting torch.onnx.ONNXProgram
+        onnx_program = torch.onnx.export(
             self.model,
             (self.example_input,),
-            file_path,
+            f=None,
             input_names=["input"],
             dynamo=True,
         )
+        if onnx_program is None:
+            raise RuntimeError("ONNX export failed")
+        onnx_program.optimize()
+        onnx_program.save(file_path)
+
+        verification_results = torch.onnx.verification.verify_onnx_program(
+            onnx_program,
+            (self.example_input,),
+        )
+        print("ONNX verification results:")
+        pprint(verification_results)
+
 
     def export_torch_export(self, file_path: str) -> None:
         exported_model = torch.export.export(self.model, (self.example_input,))
