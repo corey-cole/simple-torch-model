@@ -1,9 +1,6 @@
 from __future__ import annotations
 
 import click
-import torch
-
-from executorch.runtime import Runtime
 
 from simple_model.cli.common import ExportFormat
 from simple_model.runner import ModelRunner
@@ -35,4 +32,3 @@ def main(format: ExportFormat, input_path: str) -> None:
             runner.run_torch_export_model(input_path)
         case _:
             raise ValueError(f"Unsupported export format: {format}")
-
