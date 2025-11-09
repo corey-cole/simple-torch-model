@@ -22,7 +22,38 @@ an ONNX model can be compiled using [OpenVINO](https://docs.openvino.ai/2025/get
 The list below is an non-exclusive collection of additional export options that are being pondered.
 
 * OpenVINO IR: OpenVINO has optimizations for newer CPUs (mostly Intel, but there is some support like AVX2 that would apply to AMD as well)
-* AOTInductor:  The model is compiled into a shared object that can be natively loaded by PyTorch
+
+## Specific Format Notes
+
+### AOTI
+
+Manual inspection of the compiled so shows the following dependencies:
+
+```
+ldd simple_model_aot/data/aotinductor/model/cucx52yljzzj6ezeg42pplszc7qonhznxsqxrgl4yq3ustgtbxww.wrapper.so
+	linux-vdso.so.1 (0x00007ffb6fbe4000)
+	libtorch_cpu.so => not found
+	libstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007ffb6f800000)
+	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007ffb6fb4c000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007ffb6f400000)
+	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007ffb6f717000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007ffb6fbe6000)
+```
+The `not found` label for `libtorch_cpu.so` is a false negative, as the library is present in the virtual environment's lib path when active
+
+`./lib/python3.12/site-packages/torch/lib/libtorch_cpu.so`
+
+The pt2 archive also includes both wrapper and kernel source along with JSON metadata showing the device used for compilation.
+
+```json
+{
+  "AOTI_DEVICE_KEY": "cpu"
+}
+```
+
+The wrapper source appears to be mostly boilerplate for setting up execution, while the kernel is the model itself.  The compile and link commands
+are both embedded as comments in the kernel cpp file.
+
 
 ## References
 

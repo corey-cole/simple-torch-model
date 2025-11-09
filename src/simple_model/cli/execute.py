@@ -30,5 +30,7 @@ def main(format: ExportFormat, input_path: str) -> None:
             runner.run_onnx_model(input_path)
         case ExportFormat.TORCH_EXPORT:
             runner.run_torch_export_model(input_path)
+        case ExportFormat.AOTI:
+            runner.run_aoti_model(input_path)
         case _:
             raise ValueError(f"Unsupported export format: {format}")

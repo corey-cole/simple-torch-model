@@ -2,11 +2,9 @@ from __future__ import annotations
 
 import onnxruntime as ort
 import torch
+import torch._inductor
 
 from executorch.runtime import Runtime
-
-
-from simple_model.cli.common import ExportFormat
 
 
 # This class runs the exported SimpleModel or ConditionalModel.  It doesn't take input
@@ -51,5 +49,14 @@ class ModelRunner:
         if not hasattr(module, "forward") or not callable(module.forward):
             raise RuntimeError("Loaded module does not have a 'forward' method.")
         output = module.forward(input_tensor)
+        print(f"Model output: {output}")
+        return
+    
+    def run_aoti_model(self, input_path: str) -> None:
+        loaded_model = torch._inductor.aoti_load_package(input_path)
+        input_tensor = torch.randn(1, 10, device="cpu") # We know the device is CPU
+        
+        with torch.inference_mode():
+            output = loaded_model((input_tensor,))
         print(f"Model output: {output}")
         return

@@ -38,5 +38,7 @@ def main(format: ExportFormat, output_path: str) -> None:
             exporter.export_onnx(output_path)
         case ExportFormat.XNNPACK:
             exporter.export_xnnpack(output_path)
+        case ExportFormat.AOTI:
+            exporter.export_aoti(output_path)
         case _:
             raise ValueError(f"Unsupported export format: {format}")

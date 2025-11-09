@@ -2,6 +2,7 @@
 from __future__ import annotations
 from pprint import pprint
 import torch
+import torch._inductor
 import torch.nn as nn
 import torch.onnx.verification
 
@@ -105,3 +106,14 @@ class ModelExporter:
 
         with open(file_path, "wb") as f:
             f.write(et_program.buffer)
+    
+    @torch.inference_mode()
+    def export_aoti(self, file_path: str) -> None:
+        # Initial implementation lifted from PyTorch tutorials
+        inductor_configs = {}
+        ep = self.exported_program()
+        torch._inductor.aoti_compile_and_package(
+            ep,
+            package_path=file_path,
+            inductor_configs=inductor_configs,
+        )

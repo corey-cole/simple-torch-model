@@ -6,3 +6,4 @@ class ExportFormat(enum.Enum):
     TORCH_EXPORT = "torch_export"
     ONNX = "onnx"
     XNNPACK = "xnnpack"
+    AOTI = "aoti"
